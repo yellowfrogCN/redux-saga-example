@@ -32,7 +32,8 @@ class App extends Component {
               cover={<img alt='Dan' src={avatar_url} />}
               loading={loading}
               actions={[
-                <Button type='primary' onClick={() => this.handleToGetData('gaearon')}>开始异步请求</Button>
+                <Button type='primary' onClick={() => this.handleToGetData('gaearon')}>开始异步请求</Button>,
+                <Button type='danger' onClick={this.handleToCancel}>取消异步请求</Button>,
               ]}
             >
               <Meta
