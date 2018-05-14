@@ -1,5 +1,5 @@
 // controlSaga.js
-import { take, fork, race, call, cancel, put } from 'redux-saga/effects';
+import { take, fork, race, call, cancel } from 'redux-saga/effects';
 import { delay } from 'redux-saga';
 
 // 普通函数，故不需要加 *
@@ -38,8 +38,17 @@ function enhanceSaga (fn) {
                 handleToCancel: take(cancelType)
             });
             if (showInfo) {
-                if (result.timeOut) yield put({type: `超过规定时间${timeOut}ms后自动取消`})
-                if (result.handleToCancel) yield put({type: `手动取消，action.type为${cancelType}`})
+                // 只有传进来,timeOut cancelType才会显示信息
+                if (result.timeOut && args[0].hasOwnProperty('timeOut')) {
+                    console.groupCollapsed(`%c${fn.name}%c超过规定时间${timeOut}ms后%c自动取消`, `color: #1DA57A`, `font-weight: bold `, `color: #e2988f`);
+                    console.log(fn);
+                    console.groupEnd();
+                }
+                if (result.handleToCancel && args[0].hasOwnProperty('cancelType')) {
+                    console.groupCollapsed(`%c${fn.name}%c被手动取消，action.type为%c${cancelType}`, `color: #1DA57A`, `font-weight: bold `, `color: red`);
+                    console.log(fn);
+                    console.groupEnd();
+                }
             }
 
             yield cancel(task);
