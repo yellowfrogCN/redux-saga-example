@@ -25,34 +25,32 @@ function enhanceSaga (fn) {
         }
         // 这边思考了一下，还是单单传action(args是数组，数组最后一个是action, 其他的是你传进来的参数)过去吧，不想传args这个数组过去, 感觉没什么意义
         const task = yield fork(fn, args[args.length - 1]);
-        // 如果传进来，才走取消，否则没必要浪费性能了
-        if (args[0].hasOwnProperty('timeOut') || args[0].hasOwnProperty('cancelType')) {
-            const timeOut = args[0].timeOut || 5000; // 默认5秒
-            // 如果真的使用这个controlSaga函数的话，一般都会传取消的type过来, 假如真的不传的话，配合Match.random()也能避免误伤
-            const cancelType = args[0].cancelType || `NOT_CANCEL${Math.random()}`;
 
-            const result = yield race({
-                // 超时时间
-                timeOut: call(delay, timeOut),
-                // 手动取消 action
-                handleToCancel: take(cancelType)
-            });
-            if (showInfo) {
-                // 只有传进来,timeOut cancelType才会显示信息
-                if (result.timeOut && args[0].hasOwnProperty('timeOut')) {
-                    console.groupCollapsed(`%c${fn.name}%c超过规定时间${timeOut}ms后%c自动取消`, `color: #1DA57A`, `font-weight: bold `, `color: #e2988f`);
-                    console.log(fn);
-                    console.groupEnd();
-                }
-                if (result.handleToCancel && args[0].hasOwnProperty('cancelType')) {
-                    console.groupCollapsed(`%c${fn.name}%c被手动取消，action.type为%c${cancelType}`, `color: #1DA57A`, `font-weight: bold `, `color: red`);
-                    console.log(fn);
-                    console.groupEnd();
-                }
+        const timeOut = args[0].timeOut || 5000; // 默认5秒
+        // 如果真的使用这个controlSaga函数的话，一般都会传取消的type过来, 假如真的不传的话，配合Match.random()也能避免误伤
+        const cancelType = args[0].cancelType || `NOT_CANCEL${Math.random()}`;
+
+        const raceObj = {};
+        // 超时时间
+        if (args[0].hasOwnProperty('timeOut')) raceObj.timeOut = call(delay, timeOut);
+        // 手动取消 action
+        if (args[0].hasOwnProperty('cancelType')) raceObj.handleToCancel = take(cancelType);
+        const result = yield race(raceObj);
+        if (showInfo) {
+            // 只有传进来,timeOut cancelType才会显示信息
+            if (result.timeOut && args[0].hasOwnProperty('timeOut')) {
+                console.groupCollapsed(`%c${fn.name}%c超过规定时间${timeOut}ms后%c自动取消`, `color: #1DA57A`, `font-weight: bold `, `color: #e2988f`);
+                console.log(fn);
+                console.groupEnd();
             }
-
-            yield cancel(task);
+            if (result.handleToCancel && args[0].hasOwnProperty('cancelType')) {
+                console.groupCollapsed(`%c${fn.name}%c被手动取消，action.type为%c${cancelType}`, `color: #1DA57A`, `font-weight: bold `, `color: red`);
+                console.log(fn);
+                console.groupEnd();
+            }
         }
+
+        yield cancel(task);
     }
 }
 
