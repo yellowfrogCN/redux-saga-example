@@ -2,9 +2,29 @@
   "name": "redux-saga-example",
   "version": "0.1.0",
   "private": true,
+  "jest": {
+    "setupFiles": [
+      "raf/polyfill"
+    ],
+    "transform": {
+      "^.+\\.jsx?$": "<rootDir>/node_modules/babel-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleNameMapper": {
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__jest__/fileMock.js",
+      "\\.(scss|less|css)$": "identity-obj-proxy"
+    },
+    "moduleFileExtensions": [
+      "js",
+      "jsx",
+      "json"
+    ]
+  },
   "dependencies": {
     "antd": "^3.4.1",
+    "babel-jest": "^22.4.3",
     "isomorphic-fetch": "^2.2.1",
+    "jest": "^22.4.3",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
     "react-redux": "^5.0.7",
@@ -13,12 +33,13 @@
     "redux-devtools-extension": "^2.13.2",
     "redux-logger": "^3.0.6",
     "redux-saga": "^0.16.0",
+    "tape": "^4.9.0",
     "yf-helper": "^4.0.3"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
+    "test": "jest",
     "eject": "react-scripts eject"
   }
 }
